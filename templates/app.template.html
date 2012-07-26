@@ -1,0 +1,13 @@
+<h1>{{content.title}}</h1>
+<div class="focused-picture">
+	{{#view  MariageAEF.App.PictureView pictureBinding="content.focused" }} <img {{bindAttr src="picture.url"}} {{bindAttr title="picture.title"}} alt=""/>
+	{{/view}}
+</div>
+<div class="tumbnails">
+	<ul>
+		{{#each content.pictures}}
+		{{#view  MariageAEF.App.TumbnailView pictureBinding="this" classNameBindings="this.picture.isFocused" }} <img {{bindAttr src="picture.tumbnail.url"}} {{bindAttr title="picture.title"}} {{bindAttr class="picture.isFocused"}} alt=""/>
+		{{/view}}
+		{{/each}}
+	</ul>
+</div>
