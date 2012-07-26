@@ -61,10 +61,10 @@ $(function() {
 
 	$.ajax({
 		url : './templates/app.template.html',
-		mimeType: 'text/html'
+		mimeType : 'text/html'
 	}).done(function(data) {
 
-		var template  = data;
+		var template = data;
 		MariageAEF.App = Em.Application.create();
 
 		MariageAEF.Picture = Em.Object.extend({
@@ -87,8 +87,8 @@ $(function() {
 			focused : null,
 			setFocused : function(picture) {
 				var focused = this.get('focused');
-				if(picture != focused) {
-					if(focused != null) {
+				if (picture != focused) {
+					if (focused != null) {
 						focused.set('isFocused', false);
 					}
 					$('.focused-picture img').fadeOut(150, $.proxy(function() {
@@ -103,11 +103,17 @@ $(function() {
 		});
 
 		MariageAEF.App.TumbnailsView = Em.View.extend({
+			resize : function() {
 
+				$('.focused-picture').height(parseInt($(window).height()) - 50);
+				$('.focused-picture div').css('margin-left', (parseInt($(window).width()) - parseInt($('.focused-picture img').width())) / 2)
+
+			}
 		});
 
 		MariageAEF.App.PictureView = Em.View.extend({
-			picture : null
+			picture : null,
+			isLoading : true
 		});
 
 		MariageAEF.App.TumbnailView = MariageAEF.App.PictureView.extend({
@@ -116,14 +122,6 @@ $(function() {
 				this.get('parentView').content.setFocused(this.picture);
 			}
 		});
-
-		function resize() {
-
-			$('.focused-picture').height(parseInt($(window).height()) - 50);
-			$('.focused-picture div').css('margin-left', (parseInt($(window).width()) - parseInt($('.focused-picture img').width())) / 2);
-
-		}
-
 
 		MariageAEF.Picasa.getPictures(MariageAEF.Picasa.mariageRequestOptions, function(pictureInfos) {
 
@@ -156,14 +154,16 @@ $(function() {
 				content : picturesController,
 				didInsertElement : function() {
 
-					$(window).resize(resize);
+					$(window).resize(this.resize);
 
-					$('.focused-picture img').load(function() {
+					$('.focused-picture img').load(
+						$.proxy(function() {
 						console.log('loaded');
-						resize();
+						this.resize();
 						$('.focused-picture img').fadeIn(150);
-					});
-					resize();
+					}, this));
+
+					this.resize();
 
 					picturesController.setFocused(picturesController.pictures.get('firstObject'));
 				}

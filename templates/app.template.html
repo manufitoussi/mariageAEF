@@ -1,6 +1,10 @@
 <h1>{{content.title}}</h1>
 <div class="focused-picture">
-	{{#view  MariageAEF.App.PictureView pictureBinding="content.focused" }} <img {{bindAttr src="picture.url"}} {{bindAttr title="picture.title"}} alt=""/>
+	{{#view  MariageAEF.App.PictureView pictureBinding="content.focused" }} 
+	<img {{bindAttr src="picture.url"}} {{bindAttr title="picture.title"}} alt=""/>
+	{{#if isLoading}}
+	<span class="picture-loading">...chargement..</span>
+	{{/if}}}
 	{{/view}}
 </div>
 <div class="tumbnails">
