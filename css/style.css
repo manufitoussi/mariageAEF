@@ -83,17 +83,15 @@ a:hover { color: #036; }
 
 html {
 	overflow: hidden;
-	/*background-color: black;
-	color: white !important;*/
 }
 
-.focused-picture .ember-view{
+.focused-picture{
 	position:absolute;
 	top: 0;
 	bottom: 0;
 }
 
-.focused-picture {
+.container .focused-picture {
 	position:relative;
 }
 
@@ -195,6 +193,12 @@ transition: all 0.2s ease-in-out;
 	-o-transform: scale(1.2); 
 	-moz-transform: scale(1.2); 
 }
+
+.tumbnails li{
+	width:144px;
+	height:144px;
+}
+
 
 
 
