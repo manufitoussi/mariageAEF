@@ -78,53 +78,129 @@ MariageAEF.Picture = Em.Object.extend({
 		var name = this.get('name');
 		return description ? '%@: %@'.fmt(name, description) : name;
 	}.property('name', 'description'),
-	isFocused : false
+	isSelected : false
 });
 
 //////// CONTROLLERS //////////
 
 /*
 * PicturesController
+* manages picture loading and selection.
 */
 MariageAEF.PicturesController = Em.Object.extend({
 	title : null,
 	pictures : [],
+	selectedPicture : null,
+	selectingPicture : null,
+	loadPictures : function(callback) {
+
+		// loads picture informations
+		MariageAEF.Picasa.getPictures(MariageAEF.Picasa.voyageRequestOptions, $.proxy(function(pictureInfos) {
+			//console.log('Picture infos are loaded.');
+
+			// maps all picture infos into picture models
+			this.pictures = pictureInfos.imgPropertiesItems.map(function(imgProperties) {
+				return MariageAEF.Picture.create({
+					description : imgProperties.description,
+					name : imgProperties.title,
+					height : imgProperties.height,
+					width : imgProperties.width,
+					url : imgProperties.url,
+					tumbnail : MariageAEF.Picture.create({
+						url : imgProperties.tumbnail.url,
+						description : imgProperties.description,
+						name : imgProperties.tumbnail.title,
+						height : imgProperties.tumbnail.height,
+						width : imgProperties.tumbnail.width,
+					})
+				});
+			});
+
+			// sets title of app.
+			this.set('title', pictureInfos.feed.title);
+			
+			callback();
+		}, this));
+		
+		
+
+	},
+	initSelection : function() {
+		this.set('selectingPicture', this.pictures.get('firstObject'));
+	},
+	selectPreviousPicture : function() {
+		if (this.selectedPicture) {
+			var index = this.pictures.indexOf(this.selectedPicture);
+			if (index > 0) {
+				index--;
+				this.selectPicture(this.pictures[index]);
+			}
+		} else {
+			this.initSelection();
+		}
+	},
+	selectNextPicture : function() {
+		if (this.selectedPicture) {
+			var index = this.pictures.indexOf(this.selectedPicture);
+			if (index < this.pictures.length - 1) {
+				index++;
+				this.selectPicture(this.pictures[index]);
+			}
+		} else {
+			this.initSelection();
+		}
+	},
+	selectPicture : function(picture) {
+		this.set('selectingPicture', picture);
+	},
+	selectingPictureChanged : function() {
+
+		// changes focus in list.
+		if (this.get('selectedPicture')) {
+			this.setPath('selectedPicture.isSelected', false)
+		}
+
+		if (this.get('selectingPicture')) {
+			this.setPath('selectingPicture.isSelected', true)
+		}
+
+		this.set('selectedPicture', this.get('selectingPicture'));
+
+	}.observes('selectingPicture'),
 });
 
 //////// VIEWS //////////
 
 //
-// TumbnailsView
+// PicturesView
 //
-MariageAEF.App.TumbnailsView = Em.View.extend({
-	selectedPicture : null,
-	nextSelectedPicture : null,
+MariageAEF.App.PicturesView = Em.View.extend({
 
 	didInsertElement : function() {
 
 		// init selection
-		this.set('nextSelectedPicture', this.content.pictures.get('firstObject'));
+		this.content.initSelection();
+
+		// register to keyup event of document.
+		$(document).keyup($.proxy(this.keyup, this));
 	},
-	nextSelectedPictureChanged : function() {
-		// changes focus in list.
-		if(this.get('selectedPicture')) {
-			this.setPath('selectedPicture.isFocused', false)
+
+	keyup : function(event) {
+		if (event.keyCode == 37) {
+			// previous.
+			this.content.selectPreviousPicture();
 		}
-
-		if(this.get('nextSelectedPicture')) {
-			this.setPath('nextSelectedPicture.isFocused', true)
+		if (event.keyCode == 39) {
+			// next.
+			this.content.selectNextPicture();
 		}
-
-		this.set('selectedPicture', this.get('nextSelectedPicture'));
-
-	}.observes('nextSelectedPicture')
+	}
 });
 
 //
 // PictureView
 //
 MariageAEF.App.PictureView = Em.View.extend({
-	//selector : 'null',
 	picture : null,
 	isLoading : true,
 	$image : function() {
@@ -145,16 +221,16 @@ MariageAEF.App.PictureView = Em.View.extend({
 //
 MariageAEF.App.TumbnailView = MariageAEF.App.PictureView.extend({
 	tagName : 'li',
-	click : function(evt) {
-		this.setPath('parentView.nextSelectedPicture', this.get('picture'));
+	click : function(event) {
+		this.getPath('parentView.content').selectPicture(this.picture);
 	}
 });
 
 //
-// PictureFocusedView
+// SelectedPictureView
 //
-MariageAEF.App.PictureFocusedView = MariageAEF.App.PictureView.extend({
-	nextPicture : null,
+MariageAEF.App.SelectedPictureView = MariageAEF.App.PictureView.extend({
+	selectingPicture : null,
 	resize : function() {
 
 		$(this.findElementInParentElement()).height(parseInt($(window).height()) - 50);
@@ -169,15 +245,19 @@ MariageAEF.App.PictureFocusedView = MariageAEF.App.PictureView.extend({
 		this._super();
 
 		// resize regeistering.
-		$(window).resize( $.proxy(this.resize, this));
+		$(window).resize($.proxy(this.resize, this));
 		this.resize();
 	},
-	nextPictureChanged : function() {
+	selectingPictureChanged : function() {
+		// load state change
 		this.setPath('isLoading', true);
+
+		// fade out current image.
 		this.get('$image').fadeOut(300, $.proxy(function() {
-			this.set('picture', this.get('nextPicture'));
+			// when it's done, load next picture in image.
+			this.set('picture', this.get('selectingPicture'));
 		}, this));
-	}.observes('nextPicture')
+	}.observes('selectingPicture')
 });
 
 $(function() {
@@ -188,42 +268,21 @@ $(function() {
 	}).done(function(template) {
 		//console.log('Templates are loaded.');
 
-		// loads picture informations
-		MariageAEF.Picasa.getPictures(MariageAEF.Picasa.voyageRequestOptions, function(pictureInfos) {
-			//console.log('Picture infos are loaded.');
+		// creates pictures controller instance
+		MariageAEF.picturesController = MariageAEF.PicturesController.create();
 
-			// creates pictures controller instance
-			var picturesController = MariageAEF.PicturesController.create({
-				// sets title from data
-				title : pictureInfos.feed.title,
+		MariageAEF.picturesController.loadPictures(function() {
 
-				// maps all picture infos into picture models
-				pictures : pictureInfos.imgPropertiesItems.map(function(imgProperties) {
-					return MariageAEF.Picture.create({
-						description : imgProperties.description,
-						name : imgProperties.title,
-						height : imgProperties.height,
-						width : imgProperties.width,
-						url : imgProperties.url,
-						tumbnail : MariageAEF.Picture.create({
-							url : imgProperties.tumbnail.url,
-							description : imgProperties.description,
-							name : imgProperties.tumbnail.title,
-							height : imgProperties.tumbnail.height,
-							width : imgProperties.tumbnail.width,
-						})
-					});
-				})
-			});
-
-			// setup the instance of TumbnailsView
-			var myView = MariageAEF.App.TumbnailsView.create({
+			// setup the instance of PicturesView
+			var myView = MariageAEF.App.PicturesView.create({
 				template : Ember.Handlebars.compile(template),
-				content : picturesController
+				content : MariageAEF.picturesController
 			});
 
 			// add view to DOM
 			myView.appendTo('.container');
+
 		});
+
 	});
 });

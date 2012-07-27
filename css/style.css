@@ -98,6 +98,13 @@ html {
 .focused-picture img{
 	height:100%
 }
+
+.focused-picture .picture-loading {
+	position:relative;
+	text-align: center;
+	display:block;
+}
+
 ul {
 	list-style: none;
 	margin: 0;
@@ -160,7 +167,7 @@ transition: all 0.2s ease-in-out;
 -o-transition: all 0.2s ease-in-out; 
 }
 
-.tumbnails li:hover img, .tumbnails li.is-focused img{
+.tumbnails li:hover img, .tumbnails li.is-selected img{
 	z-index: 10;
 	opacity:1;
 	
@@ -180,7 +187,7 @@ transition: all 0.2s ease-in-out;
 	-o-transform-origin:50% 100%;
 	-moz-transform-origin:50% 100%;
 }
-.tumbnails li.is-focused img{
+.tumbnails li.is-selected img{
 	cursor:default;
 	
 	-moz-box-shadow: 0 -5px 20px -5px #444;

@@ -1,5 +1,5 @@
 <h1>{{content.title}}</h1>
-{{#view  MariageAEF.App.PictureFocusedView nextPictureBinding="nextSelectedPicture" class="focused-picture"}} 
+{{#view  MariageAEF.App.SelectedPictureView selectingPictureBinding="content.selectedPicture" class="focused-picture"}} 
 	<img {{bindAttr src="picture.url"}} {{bindAttr title="picture.title"}} alt=""/>
 {{#if isLoading}} <span class="picture-loading">...chargement..</span>
 {{/if}}}
@@ -7,8 +7,8 @@
 <div class="tumbnails">
 	<ul>
 		{{#each content.pictures}}
-		{{#view  MariageAEF.App.TumbnailView pictureBinding="this" classNameBindings="this.picture.isFocused" }} 
-			<img {{bindAttr src="picture.tumbnail.url"}} {{bindAttr title="picture.title"}} {{bindAttr class="picture.isFocused"}} alt=""/>
+		{{#view  MariageAEF.App.TumbnailView pictureBinding="this" classNameBindings="this.picture.isSelected" }} 
+			<img {{bindAttr src="picture.tumbnail.url"}} {{bindAttr title="picture.title"}} {{bindAttr class="picture.isSelected"}} alt=""/>
 		{{#if isLoading}} <span class="picture-loading">...chargement..</span>
 		{{/if}}}
 		{{/view}}
