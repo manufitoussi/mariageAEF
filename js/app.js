@@ -169,7 +169,7 @@ MariageAEF.App.PictureFocusedView = MariageAEF.App.PictureView.extend({
 		this._super();
 
 		// resize regeistering.
-		$(window).resize(this.resize);
+		$(window).resize( $.proxy(this.resize, this));
 		this.resize();
 	},
 	nextPictureChanged : function() {
