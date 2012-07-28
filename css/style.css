@@ -85,6 +85,11 @@ html {
 	overflow: hidden;
 }
 
+body{
+	color:white;
+	background-color:#222;
+}
+
 .focused-picture{
 	position:absolute;
 	top: 0;
@@ -119,7 +124,7 @@ li {
 
 .tumbnails {
 	position: absolute;
-	bottom:-140px;
+	bottom:-40px;
 	width:100%;
 	
 	transition: all 0.2s ease-in-out;
@@ -127,28 +132,31 @@ li {
 -moz-transition: all 0.2s ease-in-out; 
 -webkit-transition: all 0.2s ease-in-out; 
 -o-transition: all 0.2s ease-in-out; 
+
+border-top:solid 1px transparent;
 }
 
 .tumbnails:hover {
 	bottom:0;
-	-moz-box-shadow: 0 0 15px #444;
-	-webkit-box-shadow: 0 0 15px  #444;
-	box-shadow: 0 0 15px #444;
+	-moz-box-shadow: 0 0 15px #000;
+	-webkit-box-shadow: 0 0 15px  #000;
+	box-shadow: 0 0 15px #000;
 	background-color:white;
-	background-color:rgba(255,255,255,0.5);
+	background-color:rgba(0,0,0,0.7);
+	border-top:solid 1px #333;
 }
 
 
 .tumbnails:hover img {
-	opacity:1.0;
+	opacity:0.7;
 }
 
 .tumbnails ul {
 	position: relative;
 	white-space:nowrap;
-	overflow: auto;
-	height: 166px;
-	padding-top:40px;
+	overflow: hidden;
+	height: 60px;
+	padding-top:10px;
 	width: auto;
 }
 
@@ -202,8 +210,8 @@ transition: all 0.2s ease-in-out;
 }
 
 .tumbnails li{
-	width:144px;
-	height:144px;
+	width:45px;
+	height:45px;
 }
 
 

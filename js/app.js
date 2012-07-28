@@ -3,13 +3,22 @@ var MariageAEF = {
 	dateCreation : "18/07/2012"
 };
 
+MariageAEF.Tools = {
+	preventDefault : function(event) {
+		if (event.preventDefault) {
+			event.preventDefault();
+		}
+		event.returnValue = false;
+	}
+};
+
 MariageAEF.Picasa = {
 	mariageRequestOptions : {
 		user : "manu.fitoussi",
 		albumId : "5386209194677010497",
 		authKey : "Gv1sRgCPKz3fW818euFg",
 		imgMaxSize : "1200",
-		thumbSize : "144c",
+		thumbSize : "45c",
 		maxResults : "500"
 	},
 	voyageRequestOptions : {
@@ -17,7 +26,7 @@ MariageAEF.Picasa = {
 		albumId : "5388805969113150609",
 		authKey : "Gv1sRgCIbF47n18urSdA",
 		imgMaxSize : "1200",
-		thumbSize : "144c",
+		thumbSize : "45c",
 		maxResults : "500"
 	},
 
@@ -95,7 +104,7 @@ MariageAEF.PicturesController = Em.Object.extend({
 	loadPictures : function(callback) {
 
 		// loads picture informations
-		MariageAEF.Picasa.getPictures(MariageAEF.Picasa.voyageRequestOptions, $.proxy(function(pictureInfos) {
+		MariageAEF.Picasa.getPictures(MariageAEF.Picasa.mariageRequestOptions, $.proxy(function(pictureInfos) {
 			//console.log('Picture infos are loaded.');
 
 			// maps all picture infos into picture models
@@ -118,11 +127,9 @@ MariageAEF.PicturesController = Em.Object.extend({
 
 			// sets title of app.
 			this.set('title', pictureInfos.feed.title);
-			
+
 			callback();
 		}, this));
-		
-		
 
 	},
 	initSelection : function() {
@@ -189,10 +196,12 @@ MariageAEF.App.PicturesView = Em.View.extend({
 		if (event.keyCode == 37) {
 			// previous.
 			this.content.selectPreviousPicture();
+			MariageAEF.Tools.preventDefault(event);
 		}
 		if (event.keyCode == 39) {
 			// next.
 			this.content.selectNextPicture();
+			MariageAEF.Tools.preventDefault(event);
 		}
 	}
 });
@@ -223,7 +232,21 @@ MariageAEF.App.TumbnailView = MariageAEF.App.PictureView.extend({
 	tagName : 'li',
 	click : function(event) {
 		this.getPath('parentView.content').selectPicture(this.picture);
-	}
+	},
+	isSelectedChanged : function() {
+		var isSelected = this.getPath('picture.isSelected');
+		if (isSelected) {
+			var $image = this.get('$image');
+			var $ul = $image.parents('ul');
+			var $container = $ul.parent();
+			var offset = $image.position();
+			var width = $container.width();
+			var newOffsetLeft = Math.floor((offset.left+$image.width()+$ul.scrollLeft()) / width) * width ;
+			console.log('new scroll: ' + newOffsetLeft + 'current offset: ' + offset.left);
+			$ul.scrollLeft(newOffsetLeft);
+		}
+
+	}.observes('picture.isSelected')
 });
 
 //
