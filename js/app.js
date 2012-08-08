@@ -67,16 +67,17 @@ MariageAEF.Picasa = {
 };
 
 /////////
+var Ember = Ember || {};
 
 // create app instance
-MariageAEF.App = Em.Application.create();
+MariageAEF.App = Ember.Application.create();
 
 //////// MODELS //////////
 
 //
 // Picture
 //
-MariageAEF.Picture = Em.Object.extend({
+MariageAEF.Picture = Ember.Object.extend({
 	name : null,
 	url : null,
 	description : null,
@@ -96,7 +97,7 @@ MariageAEF.Picture = Em.Object.extend({
 * PicturesController
 * manages picture loading and selection.
 */
-MariageAEF.PicturesController = Em.Object.extend({
+MariageAEF.PicturesController = Ember.Object.extend({
 	title : null,
 	pictures : [],
 	selectedPicture : null,
@@ -104,7 +105,7 @@ MariageAEF.PicturesController = Em.Object.extend({
 	loadPictures : function(callback) {
 
 		// loads picture informations
-		MariageAEF.Picasa.getPictures(MariageAEF.Picasa.mariageRequestOptions, $.proxy(function(pictureInfos) {
+		MariageAEF.Picasa.getPictures(MariageAEF.Picasa.voyageRequestOptions, $.proxy(function(pictureInfos) {
 			//console.log('Picture infos are loaded.');
 
 			// maps all picture infos into picture models
@@ -120,7 +121,7 @@ MariageAEF.PicturesController = Em.Object.extend({
 						description : imgProperties.description,
 						name : imgProperties.tumbnail.title,
 						height : imgProperties.tumbnail.height,
-						width : imgProperties.tumbnail.width,
+						width : imgProperties.tumbnail.width
 					})
 				});
 			});
@@ -173,7 +174,7 @@ MariageAEF.PicturesController = Em.Object.extend({
 
 		this.set('selectedPicture', this.get('selectingPicture'));
 
-	}.observes('selectingPicture'),
+	}.observes('selectingPicture')
 });
 
 //////// VIEWS //////////
@@ -181,7 +182,7 @@ MariageAEF.PicturesController = Em.Object.extend({
 //
 // PicturesView
 //
-MariageAEF.App.PicturesView = Em.View.extend({
+MariageAEF.App.PicturesView = Ember.View.extend({
 
 	didInsertElement : function() {
 
@@ -209,7 +210,7 @@ MariageAEF.App.PicturesView = Em.View.extend({
 //
 // PictureView
 //
-MariageAEF.App.PictureView = Em.View.extend({
+MariageAEF.App.PictureView = Ember.View.extend({
 	picture : null,
 	isLoading : true,
 	$image : function() {
@@ -264,7 +265,7 @@ MariageAEF.App.SelectedPictureView = MariageAEF.App.PictureView.extend({
 		this.resize();
 		this._super();
 	},
-	didInsertElement : function(test) {
+	didInsertElement : function() {
 		this._super();
 
 		// resize regeistering.
